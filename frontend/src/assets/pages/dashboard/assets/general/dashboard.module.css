@@ -1,0 +1,22 @@
+.wrapper {
+    position: absolute;
+
+    display: flex;
+    flex-direction: column;
+
+    top: 81px;
+    left: 257px;
+
+    width: calc(100dvw - 257px - 32px*2);
+    height: calc(100dvh - 81px - 32px*2);
+
+    padding: 32px;
+}
+
+@media screen and (max-width: 767px) {
+    .wrapper {
+        width: calc(100dvw - 16px*2);
+        padding: 16px;
+        left: 0;
+    }
+}

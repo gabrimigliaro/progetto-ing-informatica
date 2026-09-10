@@ -1,6 +1,11 @@
+import DashboardOverviewTotals from "./assets/DashboardOverviewTotals";
+import DashboardOverviewPatients from "./assets/DashboardOverviewPatients";
+
 export default function DashboardOverview() {
     return (
-        <main>
-        </main>
+        <>
+            <DashboardOverviewTotals></DashboardOverviewTotals>
+            <DashboardOverviewPatients></DashboardOverviewPatients>
+        </>
     );
 }

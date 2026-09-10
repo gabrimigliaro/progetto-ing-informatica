@@ -44,7 +44,7 @@ export default function DashboardAside({ isOpen, setIsOpen }) {
 
     return (
         <>
-            <div onClick={() => setIsOpen(false)} className={`${isOpen ? styles.open : `${styles.closed} no-clickable`} block w-full h-full ${styles.backdrop}`} style={{backgroundColor: "oklch(0% 0 0 / 0.57)"}}></div>
+            <div onClick={() => setIsOpen(false)} className={`${isOpen ? styles.open : `${styles.closed} no-clickable`} block w-full h-full ${styles.backdrop}`}></div>
 
             <aside className={`fixed top-0 flex flex-column h-full ${styles.asideNav} ${isOpen && styles.open}`} style={{width: 256, backgroundColor: "#FFF", borderRight: "solid 1px var(--border)"}}>
                 <button onClick={() => setIsOpen(false)} className={`absolute ${styles.asideCross}`} style={{border: "none", backgroundColor: "transparent", right: 10, top: 10}}>
@@ -57,6 +57,7 @@ export default function DashboardAside({ isOpen, setIsOpen }) {
                             key={item.id}
                             to={item.path}
                             end={item.exact}
+                            onClick={() => setIsOpen(false)}
                             style={({ isActive }) => ({
                                 display: 'flex',
                                 alignItems: 'center',

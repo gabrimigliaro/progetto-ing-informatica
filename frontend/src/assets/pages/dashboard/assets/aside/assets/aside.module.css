@@ -17,7 +17,7 @@
 }
 
 .backdrop {
-    position: absolute;
+    position: fixed;
 
     left: 0;
     top: 0;
@@ -25,8 +25,10 @@
     opacity: 0;
     visibility: hidden;
 
+    background-color: oklch(0% 0 0 / 0.3);
+
     z-index: 777;
-    transition: opacity .1s ease-in-out, visibility .1s ease-in-out;
+    transition: opacity .2s ease-in-out, visibility .1s ease-in-out;
 }
 
 .backdrop.open {

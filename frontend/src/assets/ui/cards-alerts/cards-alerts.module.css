@@ -1,0 +1,34 @@
+.alert {
+    display: flex;
+    gap: 5px;
+
+    height: 23px;
+    min-height: 23px;
+
+    border-radius: 20px;
+
+    padding: 0 10px 0 10px;
+}
+
+.alert svg {
+    width: 14px;
+}
+
+.alert p {
+    white-space: nowrap;
+}
+
+.alert.red {
+    background-color: var(--red-bg);
+    color: var(--red);
+}
+
+.alert.yellow {
+    background-color: var(--yellow-bg);
+    color: var(--yellow);
+}
+
+.alert.green {
+    background-color: var(--green-bg);
+    color: var(--green);
+}

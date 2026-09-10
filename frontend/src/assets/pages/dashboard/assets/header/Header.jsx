@@ -34,7 +34,7 @@ export default function DashboardHeader({ setIsOpen }) {
                 <p className='text-little-dark text-sm'>{getPageTitle(location.pathname).subtitle}</p>
             </div>
 
-            <div className='flex flex-row align-center absolute' style={{gap: 5, right: 32}}>
+            <div className={`${styles.system} flex flex-row align-center absolute`} style={{gap: 5, right: 32}}>
                 <div className="circle" style={{backgroundColor: "oklch(0.596 0.145 163.225006)", width: 8, minWidth: 8, height: 8}}></div>
                 <span className='text-little-dark text-xs'>Sistema operativo</span>
             </div>

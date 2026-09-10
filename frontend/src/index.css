@@ -11,12 +11,17 @@
   --xxxl-text: 4.5rem;
   --xxl-text: 1.5rem;
   --xl-text: 1.25rem;
+  --lg-text: 1.125rem;
   --sm-text: .875rem;
   --xs-text: .75rem;
 
   --bg: oklch(98.5% .004 240);
   --button-hover-bg: oklch(94% 0.025 240);
   --primary-bg: oklch(0.94 0.025 242);
+
+  --red-bg: oklab(0.577 0.217662 0.112464 / 0.1);
+  --yellow-bg: oklch(0.962 0.059 95.616997);
+  --green-bg: oklch(0.979 0.021 166.113007);
 
   --white: oklch(0.984 0.003 247.858002);
   --dark: oklch(0.24 0.025 248);
@@ -26,7 +31,13 @@
   --third: oklch(0.5 0.025 248);
   --fourth: oklch(0.95 0.012 240);
 
+  --red: oklch(0.577 0.245 27.325001);
+  --yellow: oklch(0.666 0.179 58.318001);
+  --green: oklch(0.508 0.118 165.612);
+
   --border: oklch(89% .012 242);
+  --border-red: oklab(0.577 0.217662 0.112464 / 0.4);
+  --border-yellow: oklab(76.97% 0.06317 0.15656 / 0.5);
 }
 
 * {
@@ -128,6 +139,10 @@ TIPOGRAFY
   font-family: var(--mono-font-family);
 }
 
+.font-default {
+  font-family: var(--default-font-family);
+}
+
 .text-primary {
   color: var(--primary);
 }
@@ -168,6 +183,10 @@ TIPOGRAFY
   font-size: var(--sm-text);
 }
 
+.text-lg {
+  font-size: var(--lg-text);
+}
+
 .text-xl {
   font-size: var(--xl-text);
 }
@@ -178,6 +197,10 @@ TIPOGRAFY
 
 .text-xxxl {
   font-size: var(--xxxl-text);
+}
+
+.uppercase {
+  text-transform: uppercase;
 }
 
 
