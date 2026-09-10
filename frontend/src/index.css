@@ -1,0 +1,269 @@
+@import url(./assets/fonts/fonts.css);
+
+:root {
+  --default-font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --mono-font-family: "IBM Plex Mono", ui-monospace, monospace;
+
+  --font-bold: 700;
+  --font-semi-bold: 600;
+  --font-medium: 500;
+
+  --xxxl-text: 4.5rem;
+  --xxl-text: 1.5rem;
+  --xl-text: 1.25rem;
+  --sm-text: .875rem;
+  --xs-text: .75rem;
+
+  --bg: oklch(98.5% .004 240);
+  --button-hover-bg: oklch(94% 0.025 240);
+  --primary-bg: oklch(0.94 0.025 242);
+
+  --white: oklch(0.984 0.003 247.858002);
+  --dark: oklch(0.24 0.025 248);
+  --little-dark: oklch(0.5 0.025 248);
+  --primary: oklch(47% .12 242);
+  --secondary: oklch(24% 0.025 248);
+  --third: oklch(0.5 0.025 248);
+  --fourth: oklch(0.95 0.012 240);
+
+  --border: oklch(89% .012 242);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg);
+  font-family: var(--default-font-family);
+}
+
+a {
+  text-decoration: none;
+}
+
+main {
+  height: 100dvh;
+  width: 100dvw;
+}
+
+.circle {
+  border-radius: 50%;
+  aspect-ratio: 1;
+}
+
+/*
+DIV UTILIS
+*/
+
+.fixed {
+  position: fixed;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.relative {
+  position: relative;
+}
+
+.block {
+  display: block;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.flex-row {
+  flex-direction: row !important;
+}
+
+.center {
+  align-items: center;
+  justify-content: center;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.h-full {
+  height: 100dvh;
+}
+
+.w-full {
+  width: 100dvw;
+}
+
+.top-0 {
+  top: 0;
+}
+
+
+.bg-white {
+  background-color: #FFF;
+}
+
+.no-clickable {
+  pointer-events: none;
+}
+
+
+/*
+TIPOGRAFY
+*/
+
+.monospace {
+  font-family: var(--mono-font-family);
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.text-secondary {
+  color: var(--secondary);
+}
+
+.text-third {
+  color: var(--third);
+}
+
+.text-little-dark {
+  color: var(--little-dark);
+}
+
+.text-dark {
+  color: var(--dark);
+}
+
+.font-bold {
+  font-weight: var(--font-bold);
+}
+
+.font-semi-bold {
+  font-weight: var(--font-semi-bold);
+}
+
+.font-medium {
+  font-weight: var(--font-medium);
+}
+
+.text-xs {
+  font-size: var(--xs-text);
+}
+
+.text-sm {
+  font-size: var(--sm-text);
+}
+
+.text-xl {
+  font-size: var(--xl-text);
+}
+
+.text-xxl {
+  font-size: var(--xxl-text);
+}
+
+.text-xxxl {
+  font-size: var(--xxxl-text);
+}
+
+
+/*
+BUTTONS
+*/
+
+button {
+  transition: background-color .1s ease-in-out;
+  cursor: pointer;
+}
+
+.primary-btn {
+  display: flex;
+  align-items: center;
+
+  border: none;
+  border-radius: 6px;
+
+  height: 36px;
+  padding-left: 16px;
+  padding-right: 16px;
+
+  color: var(--white);
+  font-weight: 500;
+  font-size: var(--sm-text);
+
+  background-color: var(--primary);
+
+  cursor: pointer;
+}
+
+button.hovered:hover {
+  background-color: var(--button-hover-bg) !important;
+}
+
+
+/*
+FORMS
+*/
+
+form a {
+  color: var(--primary);
+  font-weight: var(--font-medium);
+}
+
+.inp {
+  display: flex;
+  flex-direction: column;
+}
+
+.inp input {
+  display: flex;
+
+  height: calc(36px - 12px);
+
+  color: var(--dark);
+
+  font-family: var(--default-font-family);
+
+  padding: 4px 12px 4px 12px;
+
+  border-radius: 6px;
+  border: solid 1px var(--border);
+  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
+}
+
+.inp input::placeholder {
+  color: oklch(0.5 0.025 248);
+}
+
+.inp .label {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  height: 25px;
+}
+
+.inp .label a {
+  font-size: 12px;
+}
+
+@media screen and (max-width: 767px) {
+  .login-card {
+    width: 75% !important;
+  }
+}

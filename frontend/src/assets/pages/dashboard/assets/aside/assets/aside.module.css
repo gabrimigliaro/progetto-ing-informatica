@@ -1,0 +1,51 @@
+.asideNav {
+    transform: translate(0);
+    transition: transform .1s ease-in-out;
+
+    z-index: 999;
+}
+
+.asideNav.open {
+    transform: translate(0);
+}
+
+.asideCross {
+    opacity: 0;
+    visibility: hidden;
+
+    transition: opacity .1s ease-in-out, visibility .1s ease-in-out;
+}
+
+.backdrop {
+    position: absolute;
+
+    left: 0;
+    top: 0;
+    
+    opacity: 0;
+    visibility: hidden;
+
+    z-index: 777;
+    transition: opacity .1s ease-in-out, visibility .1s ease-in-out;
+}
+
+.backdrop.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.backdrop.closed {
+    opacity: 0;
+    visibility: hidden;
+}
+
+@media screen and (max-width: 767px) {
+    .asideNav {
+        transform: translate(-260px);
+    }
+
+    .asideCross {
+        opacity: 1;
+        visibility: visible;
+    }
+}
