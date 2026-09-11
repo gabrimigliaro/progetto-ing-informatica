@@ -51,7 +51,7 @@
     display: flex;
     flex-direction: column;
 
-    width: 60%;
+    width: 70%;
 
     height: calc(155px - 20px*2);
     min-height: calc(155px - 20px*2);;
@@ -162,6 +162,95 @@
     }
 
     .patientOverviewCard, .patientHeartCard {
+        width: 100%;
+    }
+}
+
+
+.patientEmergenciesTotal {
+    flex-wrap: wrap;
+
+    margin-top: 15px;
+}
+
+.patientEmergenciesTotal .card {
+    flex: 1 1 calc(50% - 16px*2 - 10px);
+    padding: 16px;
+}
+
+
+.emergenciesCard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    width: calc(100% - 16px*2);
+    min-height: calc(100px - 16px*2);
+
+    padding: 16px;
+
+    border-radius: 8px;
+
+    background-color: #FFF;
+}
+
+.emergenciesCard.red {
+    border: solid 1px var(--border-red);
+}
+
+.emergenciesCard.red .icon {
+    background-color: var(--red-bg);
+    color: var(--red);
+}
+
+.emergenciesCard.yellow {
+    border: solid 1px var(--border-yellow);
+}
+
+.emergenciesCard.yellow .icon {
+    background-color: var(--yellow-bg);
+    color: var(--yellow-dark);
+}
+
+.emergenciesCard .icon {
+    width: 40px;
+    min-width: 40px;
+
+    height: 40px;
+    min-height: 40px;
+
+    border-radius: 6px;
+}
+
+.emergenciesCard .icon > svg {
+    width: 20px;
+    height: 20px;
+}
+
+
+@media screen and (max-width: 870px) {
+    .emergenciesCard {
+        flex-direction: column;
+        align-items: flex-start;
+
+        gap: 15px;
+    }
+
+    .emergenciesCard > .left {
+        width: 100%;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+
+    .emergenciesCard > .right {
+        width: 100%;
+        flex-direction: column !important;
+    }
+
+    .emergenciesCard > .right button {
+        justify-content: center;
         width: 100%;
     }
 }

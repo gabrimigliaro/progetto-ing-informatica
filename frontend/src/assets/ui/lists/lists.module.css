@@ -1,0 +1,63 @@
+.list {
+    display: flex;
+    flex-direction: column;
+}
+
+.list > :nth-child(1) {
+    border-top: solid 1px var(--border);
+    border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+}
+
+.list > :nth-last-child(1) {
+    border-bottom: solid 1px var(--border);
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.list > .item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-right: solid 1px var(--border);
+    border-left: solid 1px var(--border);
+    border-top: solid 1px var(--border);
+
+    background-color: #FFF;
+
+    padding: 16px;
+}
+
+.list > .item > .details {
+    max-width: 70%;
+    line-height: 20px;
+}
+
+@media screen and (max-width: 767px) {
+    .list > .item {
+        flex-direction: column;
+        align-items: flex-start;
+
+        gap: 10px;
+    }
+
+    .list > .item.vertical > .details, .list > .item.vertical > div, .list > .item.vertical > div > .details {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+
+        width: 100%;
+        max-width: none;
+
+        gap: 10px;
+    }
+
+    .list > .item.vertical, .list > .item.vertical > div {
+        gap: 15px;
+    }
+    
+    .list > .item.vertical > button, .list > .item.vertical > div > button {
+        width: 100%;
+        justify-content: center;
+    }
+}

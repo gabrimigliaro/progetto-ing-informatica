@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { useParams, Link, useOutletContext } from 'react-router-dom';
 
 import DashboardPatientOverview from './assets/DashboardPatientOverview';
+import DashboardPatientEmergenciesTotal from './assets/DashboardPatientEmergenciesTotal';
+import DashboardPatientEmergenciesHistory from './assets/DashboardPatientEmergenciesHistory';
 
 const mockPatients = {
     'mario-rossi': {
@@ -9,7 +11,7 @@ const mockPatients = {
         id: 'PZ-041',
         position: 'Stanza 1, primo piano',
         heartRate: 72,
-        status: 'stable',
+        status: 'support',
         referente: 'Giulia Moretti',
     },
 };
@@ -53,6 +55,16 @@ export default function DashboardPatient() {
             </Link>
 
             <DashboardPatientOverview patientData={patient}></DashboardPatientOverview>
+
+            <div className='flex flex-column' style={{marginTop: 35}}>
+                <div className='flex flex-column' style={{gap: 3}}>
+                    <h2 className='text-lg font-semi-bold'>Storico eventi</h2>
+                    <p className='text-sm text-little-dark'>Cadute, battiti anomali e richieste di aiuto registrate.</p>
+                </div>
+
+                <DashboardPatientEmergenciesTotal patientData={patient}></DashboardPatientEmergenciesTotal>
+                <DashboardPatientEmergenciesHistory patientData={patient}></DashboardPatientEmergenciesHistory>
+            </div>
         </>
     );
 }

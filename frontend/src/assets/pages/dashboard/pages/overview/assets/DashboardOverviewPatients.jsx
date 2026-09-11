@@ -1,4 +1,4 @@
-import patients from './css/patients.module.css';
+import patients from './css/dashboardOverview.module.css';
 import CardAlert from '../../../../../ui/cards-alerts/card-alerts';
 
 import { Link } from 'react-router-dom';
