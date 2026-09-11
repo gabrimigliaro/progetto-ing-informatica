@@ -2,26 +2,28 @@ import { useLocation } from 'react-router-dom';
 
 import styles from './assets/header.module.css';
 
-export default function DashboardHeader({ setIsOpen }) {
+export default function DashboardHeader({ customHeader, setIsOpen }) {
     const location = useLocation();
 
     const getPageTitle = (path) => {
         switch (path) {
-        case '/':
-        case '/dashboard':
-            return {title: 'Dashboard', subtitle: 'Panoramica dei pazienti assegnati'};
-        case '/dashboard/emergencies':
-            return {title: 'Emergenze attuali', subtitle: 'Segnalazioni da gestire in tempo reale'};
-        case '/dashboard/devices':
-            return {title: 'Dispositivi', subtitle: 'Richieste di collegamento alla rete'};
-        case '/dashboard/associations':
-            return {title: 'Operatori e pazienti', subtitle: 'Gestisci le assegnazioni di monitoraggio'};
-        case '/dashboard/settings':
-            return {title: 'Impostazioni', subtitle: 'Sicurezza e gestione dell’account'};
-        default:
-            return 'Pagina non trovata';
+            case '/':
+            case '/dashboard':
+                return {title: 'Dashboard', subtitle: 'Panoramica dei pazienti assegnati'};
+            case '/dashboard/emergencies':
+                return {title: 'Emergenze attuali', subtitle: 'Segnalazioni da gestire in tempo reale'};
+            case '/dashboard/devices':
+                return {title: 'Dispositivi', subtitle: 'Richieste di collegamento alla rete'};
+            case '/dashboard/associations':
+                return {title: 'Operatori e pazienti', subtitle: 'Gestisci le assegnazioni di monitoraggio'};
+            case '/dashboard/settings':
+                return {title: 'Impostazioni', subtitle: 'Sicurezza e gestione dell’account'};
+            default:
+                return 'Pagina non trovata';
         }
     };
+
+    const headerInfo = customHeader || getPageTitle(location.pathname);
 
     return (
         <header className={`${styles.dashboardHeader} flex flex-row align-center`}>
@@ -30,8 +32,8 @@ export default function DashboardHeader({ setIsOpen }) {
             </button>
 
             <div className='flex flex-column' style={{marginLeft: 32, gap: 3}}>
-                <h1 className='text-dark text-xl font-semi-bold'>{getPageTitle(location.pathname).title}</h1>
-                <p className='text-little-dark text-sm'>{getPageTitle(location.pathname).subtitle}</p>
+                <h1 className='text-dark text-xl font-semi-bold'>{headerInfo.title}</h1>
+                <p className='text-little-dark text-sm'>{headerInfo.subtitle}</p>
             </div>
 
             <div className={`${styles.system} flex flex-row align-center absolute`} style={{gap: 5, right: 32}}>

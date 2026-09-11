@@ -1,0 +1,167 @@
+.cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+
+    width: 100%;
+    height: auto;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    width: calc(330px - 20px*2);
+    min-width: calc(330px - 20px*2);
+
+    height: calc(100px - 20px*2);
+    min-height: calc(100px - 20px*2);
+
+    border-radius: 8px;
+    border: solid 1px var(--border);
+
+    padding: 20px;
+
+    background-color: #FFF;
+}
+
+.card.red {
+    border: solid 1px var(--border-red);
+}
+
+.card.red span {
+    color: var(--red);
+}
+
+@media screen and (max-width: 767px) {
+    .cards {
+        justify-content: center;
+    }
+
+    .card {
+        width: 100%;
+        max-width: none;
+    }
+}
+
+
+
+.patientOverviewCard, .patientHeartCard {
+    display: flex;
+    flex-direction: column;
+
+    width: 60%;
+
+    height: calc(155px - 20px*2);
+    min-height: calc(155px - 20px*2);;
+
+    background-color: #FFF;
+
+    border-radius: 8px;
+    border: solid 1px var(--border);
+
+    padding: 20px;
+}
+
+.patientOverviewCard > .top {
+    display: flex;
+    justify-content: space-between;
+
+    width: 100%;
+    height: 50%;
+}
+
+.patientOverviewCard > .top > .identification {
+    display: flex;
+    gap: 10px;
+
+    width: auto;
+    height: 100%;
+}
+
+.patientOverviewCard > .top > .identification > .user {
+    display: flex;
+
+    width: 48px;
+    min-width: 48px;
+
+    height: 48px;
+    min-height: 48px;
+
+    background-color: var(--fourth);
+    
+    border-radius: 50%;
+}
+
+.patientOverviewCard > .top > .identification > .user > svg {
+    width: 24px;
+}
+
+.patientOverviewCard > .top > .identification > .name {
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+
+    height: 48px;
+}
+
+.patientOverviewCard > .bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+    height: 50%;
+}
+
+.patientOverviewCard > .bottom > .info {
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+
+.patientHeartCard {
+    justify-content: space-between;
+    width: 30%;
+}
+
+.patientHeartCard > .heart {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.patientHeartCard > .heart svg {
+    color: var(--primary)
+}
+
+
+.patientHeartCard.red {
+    border: solid 1px var(--border-red);
+}
+
+.patientHeartCard.red .heart svg {
+    color: var(--red);
+}
+
+.patientHeartCard.yellow {
+    border: solid 1px var(--border-yellow);
+}
+
+.patientHeartCard.yellow .heart svg {
+    color: var(--yellow);
+}
+
+@media screen and (max-width: 850px) {
+    .patientOverviewCards {
+        flex-wrap: wrap;
+    }
+
+    .patientOverviewCard, .patientHeartCard {
+        width: 100%;
+    }
+}

@@ -5,6 +5,7 @@ import DashboardAssociations from './assets/pages/dashboard/pages/associations/D
 import DashboardDevices from './assets/pages/dashboard/pages/devices/DashboardDevices';
 import DashboardSettings from './assets/pages/dashboard/pages/settings/DashboardSettings';
 import DashboardEmergencies from './assets/pages/dashboard/pages/emergencies/DashboardEmergencies.jsx';
+import DashboardPatient from './assets/pages/dashboard/pages/patient/DashboardPatient.jsx';
 
 import Login from './assets/pages/login/Login';
 import Register from './assets/pages/register/Register';
@@ -22,6 +23,8 @@ export default function App() {
                     <Route path="devices" element={<DashboardDevices />} />
                     <Route path="settings" element={<DashboardSettings />} />
                     <Route path="emergencies" element={<DashboardEmergencies />} />
+
+                    <Route path="patient/:patientSlug" element={<DashboardPatient />} />
                 </Route>
 
                 <Route path="/login" element={<Login />} />

@@ -1,4 +1,4 @@
-import styles from './css/cards.module.css';
+import styles from '../../../../../ui/cards/cards.module.css';
 
 export default function DashboardOverviewTotals() {
     return (
