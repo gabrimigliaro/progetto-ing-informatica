@@ -16,7 +16,7 @@ Acquisteremo uno smartwatch programmabile su cui flasheremo una versione di [Ast
 per:
 1. **Gestire l'invio dei pacchetti tramite Bluethooth**
 2. **Inviare l'allarme quando il paziente preme il tasto fisico laterale**
-3. **La rilevazione delle cadute tramite accelerometro e giroscopio con relativa notifica**
+3. **La rilevazione delle cadute tramite accelerometro e giroscopio con relativa notifica** *(in via di valutazione)*
 
 L'[architettura](#-architettura-e-flussi-di-comunicazione) è semplice:
 1. L'orologio invia il pacchetto Bluethooth alle antenne presenti in loco.
@@ -30,7 +30,7 @@ L'[architettura](#-architettura-e-flussi-di-comunicazione) è semplice:
 
 ### 1. Riconoscimento e Registrazione Dispositivo (Orologio)
 - **Broadcast BLE**: Gli orologi inviano pacchetti Bluetooth in broadcast intercettati dalle antenne ESP.
-- **Protocollo di Identificazione**: Viene definito un [Protocollo](https://github.com/gabrimigliaro/progetto-ing-informatica/blob/main/PROTOCOLS.md) per identificare univocamente il dispositivo e associarlo a uno specifico paziente.
+- **Protocollo di Identificazione**: Viene definito un protocollo per identificare univocamente il dispositivo e associarlo a uno specifico paziente.
 - **Aggiunta Automatizzata nel Database**:
   1. Il dispositivo comunica con l'antenna ESP inviando un segnale "alive".
   2. L'ESP inoltra la richiesta di aggiunta al SCI.
@@ -66,78 +66,5 @@ L'orologio invia un pacchetto Bluetooth alle antenne ogni minuto con i dati attu
 ### 4. Aggiunta di nuova antenna ESP
 Il firmware dell'ESP hosterà una piccola rete Wi-Fi per ciascuna antenna. Collegandosi ad essa è possibile accedere ad una piccola interfaccia WEB dove sarà possibile scegliere l'SSID della rete Wi-Fi del luogo, la sua Password e il nome dell'antenna (per mostrare all'operatore la posizione approssimativa del paziente all'interno della struttura)
 
----
-
-## 🗄️ Modello dei Dati (Database Relazionale)
-
-Struttura relazionale consigliata per MySQL o PostgreSQL:
-
-```sql
--- Anagrafica Account Utenti/Operatori
-CREATE TABLE Accounts (
-    UUID VARCHAR(36) PRIMARY KEY,
-    Nome VARCHAR(50) NOT NULL,
-    Cognome VARCHAR(50) NOT NULL
-);
-
--- Anagrafica Pazienti
-CREATE TABLE Pazienti (
-    CF VARCHAR(16) PRIMARY KEY,
-    Nome VARCHAR(50) NOT NULL,
-    Cognome VARCHAR(50) NOT NULL,
-    Data_Nascita DATE NOT NULL,
-    Sesso CHAR(1) CHECK (Sesso IN ('M', 'F', 'O'))
-);
-
--- Dispositivi Indossabili
-CREATE TABLE Dispositivi (
-    ID_Dispositivo VARCHAR(64) PRIMARY KEY,
-    Stato VARCHAR(20) DEFAULT 'normal' CHECK (Stato IN ('normal', 'alert'))
-);
-
--- Antenne di Ricezione ESP
-CREATE TABLE Antenne (
-    ID_Antenna VARCHAR(64) PRIMARY KEY,
-    Nome_Antenna VARCHAR(50) NOT NULL,
-    Stato VARCHAR(20) DEFAULT 'online' CHECK (Stato IN ('online', 'offline'))
-);
-
--- Tabelle di Relazione
-CREATE TABLE Paziente_Dispositivo (
-    CF VARCHAR(16),
-    ID_Dispositivo VARCHAR(64),
-    PRIMARY KEY (CF, ID_Dispositivo),
-    FOREIGN KEY (CF) REFERENCES Pazienti(CF) ON DELETE CASCADE,
-    FOREIGN KEY (ID_Dispositivo) REFERENCES Dispositivi(ID_Dispositivo) ON DELETE CASCADE
-);
-
-CREATE TABLE Account_Paziente (
-    UUID VARCHAR(36),
-    CF VARCHAR(16),
-    PRIMARY KEY (UUID, CF),
-    FOREIGN KEY (UUID) REFERENCES Accounts(UUID) ON DELETE CASCADE,
-    FOREIGN KEY (CF) REFERENCES Pazienti(CF) ON DELETE CASCADE
-);
-
--- Registro Eventi e Misurazioni
-CREATE TABLE Valori_Fuori_Norma (
-    ID SERIAL PRIMARY KEY,
-    CF VARCHAR(16) REFERENCES Pazienti(CF),
-    BPM INT NOT NULL,
-    TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE Richieste_Aiuto (
-    ID SERIAL PRIMARY KEY,
-    CF VARCHAR(16) REFERENCES Pazienti(CF),
-    ID_Antenna VARCHAR(64) REFERENCES Antenne(ID_Antenna),
-    TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    Stato VARCHAR(20) DEFAULT 'non risolta' CHECK (Stato IN ('risolta', 'non risolta'))
-);
-
-CREATE TABLE Cadute (
-    ID SERIAL PRIMARY KEY,
-    CF VARCHAR(16) REFERENCES Pazienti(CF),
-    ID_Antenna VARCHAR(64) REFERENCES Antenne(ID_Antenna),
-    TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);```
+ ---
+ Manzoni Simone e Migliaro Gabriele
