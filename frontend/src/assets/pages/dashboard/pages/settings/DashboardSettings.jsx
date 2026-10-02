@@ -7,7 +7,7 @@ export default function DashboardSettings() {
 
     return (
         <>
-            <div className={`${lists.list}`}>
+            <div className={`${lists.list}`} style={{paddingBottom: 35}}>
                 <div className={`${lists.item} ${lists.vertical}`} style={{padding: 20}}>
                     <div className={`${lists.details} flex flex-row`} style={{gap: 15}}>
                         <span className='flex center bg-primary' style={{width: 40, height: 40, borderRadius: 6}}>
