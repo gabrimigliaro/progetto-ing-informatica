@@ -1,28 +1,43 @@
 #include <Arduino.h>
-#include "BLE.h"
 #include "Encrypt.h"
 #include "MyWiFi.h"
+#include "DataManage.h"
+#include "MyBLE.h"
+#include "freertos/FreeRTOS.h"
+#include "data.h"
 
-unsigned long lastSendMs = 0;
-const unsigned long sendInt = 2000;
-const extern unsigned char key[32] = "Chiave"; 
-uint8_t bpm = 0;
-bool fall = false;
-bool emergency = false;
+QueueHandle_t InQueue;
+QueueHandle_t InQueueLogin;
+static BleBroadcaster ble;
+
+static bool startBleWithRetry(int tries) {
+    for (int i = 1; i <= tries; i++) {
+        if (ble.begin("Node")) return true;
+        Serial.printf("BLE: tentativo %d/%d fallito\n", i, tries);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+    return false;
+}
 
 extern "C" void app_main() {
     initArduino();
 
     Serial.begin(115200);
     delay(500);
-    Serial.println(F("\n=== Avvio ESP32 secure link ==="));
+    Serial.println(F("\n=== Avvio ==="));
 
-    WiFiInit();
+    InQueue = xQueueCreate(200, sizeof(InData));
+    InQueueLogin = xQueueCreate(20,  sizeof(InDataLogin));
+    configASSERT(InQueue && InQueueLogin);
 
-    Serial.println(F("=== Setup completato ==="));
+    WifiStart();
+    DataStart();
 
-    while (true) {
-        WifiUpdate();
-        delay(10);
+    if (!startBleWithRetry(5)) {
+        Serial.println(F("BLE non parte, riavvio"));
+        delay(1000);
+        esp_restart();
     }
+    
+    Serial.println(F("=== Setup completato ==="));
 }

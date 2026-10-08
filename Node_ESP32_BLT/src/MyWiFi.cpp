@@ -4,7 +4,8 @@ AsyncWebServer server(80);
 Preferences prefs;
 static volatile bool newCreds = false;
 static bool routesSet = false;
-String apName = "Nuovo_Nodo";
+String apName = "Nodo_ESP32";
+DNSServer dnsServer;
 
 static const char PAGE[] PROGMEM = R"rawliteral(
 <!DOCTYPE html><html><head>
@@ -33,14 +34,14 @@ static const char PAGE[] PROGMEM = R"rawliteral(
     <label>Password router</label>
     <input name="pass" type="password">
     <label>Nome access point</label>
-    <input name="ap" required>
+    <input name="ap" required maxlength="32">
     <button>Salva</button>
   </form>
 </div></body></html>
 )rawliteral";
 
 
-void WiFiCredentials(const char* ssid, const char* password) {
+static void WiFiCredentials(const char* ssid, const char* password) {
     prefs.begin("WiFi", false);
     prefs.putString("ssid", ssid);
     prefs.putString("password", password);
@@ -48,22 +49,22 @@ void WiFiCredentials(const char* ssid, const char* password) {
     prefs.end();
 }
 
-
-
 static void readCreds(String& ssid, String& pass) {
-    prefs.begin("WiFi", false);
+    prefs.begin("WiFi", true);
     ssid = prefs.getString("ssid", "");
     pass = prefs.getString("password", "");
-    apName = prefs.getString("ap", "ESP32-Setup");
+    apName = prefs.getString("ap", "Nodo_ESP32");
     prefs.end();
 }
 
-void startApSta(const char* apSsid = "ESP32-Setup", const char* apPass = "12345678") {
+static void startApSta(const char* apSsid = "ESP32-Setup", const char* apPass = "12345678") {
     WiFi.mode(WIFI_AP_STA);
     WiFi.softAP(apSsid, apPass);
 
     Serial.print("AP attivo, IP: ");
-    Serial.println(WiFi.softAPIP());   //192.168.4.1!!!
+    Serial.println(WiFi.softAPIP());
+
+    dnsServer.start(53, "*", WiFi.softAPIP());
 
     if (!routesSet) {
         routesSet = true;
@@ -78,6 +79,18 @@ void startApSta(const char* apSsid = "ESP32-Setup", const char* apPass = "123456
                 String pass = r->hasParam("pass", true) ? r->getParam("pass", true)->value() : "";
                 String ap   = r->getParam("ap", true)->value();
 
+                if (ssid.length() == 0 || ap.length() == 0) {
+                    r->send(400, "text/plain", "Dati mancanti");
+                    return;
+                }
+                
+                if (ssid.length() > 32 || ap.length() > 32 ||
+                    (pass.length() > 0 && (pass.length() < 8 || pass.length() > 63))) {
+                    r->send(400, "text/plain", "Lunghezza SSID/password non valida");
+                    return;
+                }
+
+                apName = ap;
                 WiFiCredentials(ssid.c_str(), pass.c_str());
                 newCreds = true;
 
@@ -89,12 +102,17 @@ void startApSta(const char* apSsid = "ESP32-Setup", const char* apPass = "123456
                 r->send(400, "text/plain", "Dati mancanti");
             }
         });
+
+        server.onNotFound([](AsyncWebServerRequest *r) {
+            r->redirect(String("http://") + WiFi.softAPIP().toString() + "/");
+        });
     }
 
     server.begin();
 }
 
-void stopApSta() {
+static void stopApSta() {
+    dnsServer.stop();
     server.end();
     WiFi.softAPdisconnect(true);
     WiFi.mode(WIFI_STA);
@@ -102,6 +120,7 @@ void stopApSta() {
 
 void WiFiInit() {
     WiFi.persistent(false);
+    WiFi.setAutoReconnect(true);
     String ssid, pass;
     readCreds(ssid, pass);
 
@@ -118,7 +137,9 @@ void WiFiInit() {
     startApSta(apName.c_str());
     Serial.println("Tentativo di connessione al router...");
     unsigned long lastTry = millis();
+    unsigned long lastDot = 0;
     while (WiFi.status() != WL_CONNECTED) {
+        dnsServer.processNextRequest();
         if (newCreds) {
             newCreds = false;
             readCreds(ssid, pass);
@@ -128,9 +149,13 @@ void WiFiInit() {
             lastTry = millis();
             WiFi.begin(ssid.c_str(), pass.c_str());
         }
-        Serial.print(".");
-        delay(200);
+        if (millis() - lastDot >= 1000) {
+            lastDot = millis();
+            Serial.print(".");
+        }
+        delay(10);
     }
+    Serial.println("\nConnesso al router");
     stopApSta();
 }
 
@@ -139,5 +164,18 @@ void WifiUpdate() {
     if (WiFi.status() != WL_CONNECTED && millis() - lastAttempt > 10000) {
         lastAttempt = millis();
         WiFiInit();
+        lastAttempt = millis();
     }
+}
+
+static void WifiTask(void *arg) {
+    WiFiInit();
+    for (;;) {
+        WifiUpdate();
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+}
+
+void WifiStart() {
+    xTaskCreate(WifiTask, "WifiTask", 8192, nullptr, 2, nullptr);
 }
