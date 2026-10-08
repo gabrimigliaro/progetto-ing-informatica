@@ -29,10 +29,10 @@ class HeartSensorController:
         try:
             self.bus = dbus.SystemBus()
 
-            mgr_obj = self.bus.get_object(CONFIG.H_SERVICE, CONFIG.H_MANAGER_PATH)
-            self.manager = dbus.Interface(mgr_obj, CONFIG.H_SENSOR_MANAGER_LOCAL)
+            mgr_obj = self.bus.get_object(CONFIG.SENSOR_SERVICE, CONFIG.SENSOR_MANAGER_PATH)
+            self.manager = dbus.Interface(mgr_obj, CONFIG.SENSOR_MANAGER_LOCAL)
 
-            sensor_obj = self.bus.get_object(CONFIG.H_SERVICE, CONFIG.H_SENSOR_PATH)
+            sensor_obj = self.bus.get_object(CONFIG.SENSOR_SERVICE, CONFIG.H_SENSOR_PATH)
             self.sensor = dbus.Interface(sensor_obj, CONFIG.H_SENSOR_LOCAL)
 
             LOGS.info("[HeartSensor] Connessione inizializzata con successo.")

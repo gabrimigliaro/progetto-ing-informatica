@@ -44,13 +44,21 @@ class ConfigManager:
             self.VIB_DELAY_MS = self.parser.getint('Vibration', 'vibration_delay_ms')
             self.VIB_GAIN = self.parser.getint('Vibration', 'vibration_gain')
 
-            self.H_SERVICE = self.parser.get('HeartSensor', 'service')
-            self.H_MANAGER_PATH = self.parser.get('HeartSensor', 'manager_path')
+            self.SENSOR_SERVICE = self.parser.get('Sensors', 'service')
+            self.SENSOR_MANAGER_PATH = self.parser.get('Sensors', 'manager_path')
+            self.SENSOR_MANAGER_LOCAL = self.parser.get('Sensors', 'sensor_manager_local')
+
             self.H_SENSOR_PATH = self.parser.get('HeartSensor', 'sensor_path')
             self.H_SENSOR_NAME = self.parser.get('HeartSensor', 'sensor_name')
             self.H_SOCKET_PATH = self.parser.get('HeartSensor', 'socket_path')
-            self.H_SENSOR_MANAGER_LOCAL = self.parser.get('HeartSensor', 'sensor_manager_local')
             self.H_SENSOR_LOCAL = self.parser.get('HeartSensor', 'sensor_local')
+
+            self.AC_SENSOR_PATH = self.parser.get('AccelerometerSensor', 'sensor_path')
+            self.AC_SENSOR_NAME = self.parser.get('AccelerometerSensor', 'sensor_name')
+            self.AC_SENSOR_LOCAL = self.parser.get('AccelerometerSensor', 'sensor_local')
+
+            self.FREEFALL_THRESHOLD = self.parser.getfloat('AccelerometerSensor', 'freefall_threshold')
+            self.IMPACT_THRESHOLD = self.parser.getfloat('AccelerometerSensor', 'impact_threshold')
 
             self.H_MAX_ATTEMPTS = self.parser.getint('HeartSensor', 'max_attempts')
             self.H_ATTEMPTS_DELAY = self.parser.getfloat('HeartSensor', 'attemps_delay')

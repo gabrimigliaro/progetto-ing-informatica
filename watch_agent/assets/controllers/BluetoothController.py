@@ -8,6 +8,8 @@ from gi.repository import GLib  # type: ignore
 from assets.managers.ConfigManager import CONFIG
 from assets.managers.LogsManager import LOGS
 
+from assets.utils.PacketsUtils import packetUtils
+
 ADVERTISEMENT = CONFIG.BLE_ADVERTISEMENT
 ADVERTISING_MANAGER = CONFIG.BLE_ADVERTISEMENT_MANAGER
 
@@ -124,13 +126,14 @@ class BluetoothController:
                 LOGS.error("[Bluetooth] Non è stato possibile fermare correttamente il bluethooth.")
                 
             self.active_ad = None
+            if not self.scan_active: self.set_power(False)
 
-            self.set_power(False)
             LOGS.info("[Bluetooth] Trasmissione completata. Radio SPENTA.")
         return False
 
     def send(self, payload, duration_sec: int = 2) -> bool:
         if not self.is_powered() and not self.set_power(True): return False
+        if self.scan_active: return False
 
         GLib.timeout_add(300, self.start_advertising, payload)
 
@@ -160,10 +163,7 @@ class BluetoothController:
         self.set_power(False)
         LOGS.info("[Bluetooth] Scansione BLE terminata. Radio SPENTA.")
 
-    # Qua c'è da dividere in funzioni: chiamare classe packetUtils per il parsing
-    # |
-    # V
-    def interfaces_added(self, object_path, interfaces):
+    def packet_received(self, object_path, interfaces):
         if not self.scan_active: return
 
         if CONFIG.BLE_BLUEZ_DEVICE_PATH in interfaces:
@@ -174,21 +174,11 @@ class BluetoothController:
             if name == "ESP_REPLY" or 0xFFFF in mfg_data:
                 LOGS.success(f"[Bluetooth] Pacchetto RICEVUTO da '{name}' ({object_path})")
 
-                payload_str = ""
-                if 0xFFFF in mfg_data:
-                    raw_bytes = bytes(mfg_data[0xFFFF])
-                    payload_str = raw_bytes.decode('utf-8', errors='ignore')
-
-                received_info = {
-                    "name": name,
-                    "payload": payload_str,
-                    "rssi": int(device_props.get("RSSI", 0)),
-                    "mac": str(device_props.get("Address", ""))
-                }
+                received_info = packetUtils.parse_packet_response(device_props)
 
                 self.stop_scanning()
 
-                if self.response_callback:
+                if self.response_callback and received_info:
                     self.response_callback(received_info)
 
                 self.response_callback = None
@@ -215,7 +205,7 @@ class BluetoothController:
         self.response_callback = response_callback
         self.timeout_callback = timeout_callback
 
-        self.signal_match = self.bus.add_signal_receiver(self.interfaces_added, dbus_interface=CONFIG.DBUS_OBJECT_MANAGER, signal_name="InterfacesAdded")
+        self.signal_match = self.bus.add_signal_receiver(self.packet_received, dbus_interface=CONFIG.DBUS_OBJECT_MANAGER, signal_name="InterfacesAdded")
 
         try:
             adapter_obj = self.bus.get_object(CONFIG.BLE_BLUEZ_GENERAL_PATH, self.adapter_path)

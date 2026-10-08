@@ -12,6 +12,9 @@ from assets.managers.OSManager import OSMANAGER
 from assets.controllers.HeartSensorController import heartSensorController
 from assets.controllers.ButtonsController import buttonsController
 from assets.controllers.BatteryController import batteryController
+from assets.controllers.AccelerometerSensorController import accelerometerSensorController
+from assets.controllers.BluetoothController import bluethoothController
+
 from assets.utils.PacketsUtils import packetUtils
 
 def stop_and_send():
@@ -22,7 +25,7 @@ def stop_and_send():
 
         batteryController.get_battery_level()
 
-        packetUtils.send_telemetry_packet(heartSensorController.currentBPM, False, batteryController.battery_level)
+        bluethoothController.send(packetUtils.get_telemetry_packet(heartSensorController.currentBPM, False, batteryController.battery_level))
     finally:
         OSMANAGER.set_wake_lock(False)
 
@@ -49,6 +52,8 @@ def main():
 
     GLib.timeout_add_seconds(int(CONFIG.H_MEASURMENTS_DELAY), main_loop)
 
+    threading.Thread(target=accelerometerSensorController.start, daemon=True).start()
+
     main_loop()
     batteryController.get_battery_level()
     LOGS.success("[MAIN] Loop principale avviato.")
@@ -65,6 +70,9 @@ def main():
 
         if hasattr(buttonsController, "close"):
             buttonsController.close()
+
+        if accelerometerSensorController.session_id is not None:
+            accelerometerSensorController.exit()
 
         LOGS.success("[MAIN] Chiusura completata.")
 

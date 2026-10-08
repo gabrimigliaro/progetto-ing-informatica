@@ -11,6 +11,7 @@ from assets.controllers.VibrationController import vibrationController
 from assets.controllers.HeartSensorController import heartSensorController
 from assets.controllers.BatteryController import batteryController
 from assets.controllers.BluetoothController import bluethoothController
+
 from assets.utils.PacketsUtils import packetUtils
 
 class ButtonsController:
@@ -82,11 +83,12 @@ class ButtonsController:
                 LOGS.warning("[MAIN] Messo in pausa sensore cardio.")
 
                 vibrationController.vibrate()
-                packetUtils.send_telemetry_packet(heartSensorController.currentBPM, True, batteryController.battery_level)
+                
+                bluethoothController.send(packetUtils.get_telemetry_packet(heartSensorController.currentBPM, True, batteryController.battery_level))
 
                 bluethoothController.listen_for_packet(response_callback=self.handle_response, timeout_callback=self.handle_timeout)
 
-            return True
+        return True
 
     def close(self) -> bool:
         if self.btn_fd is not None:
