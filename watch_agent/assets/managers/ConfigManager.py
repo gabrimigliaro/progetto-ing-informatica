@@ -35,6 +35,13 @@ class ConfigManager:
         try:
             self.DEVICE_NAME = self.parser.get('General', 'device_name')
             self.DEVICE_NAME_OS = self.parser.get('General', 'device_name_os')
+            self.APP_DIR = self.parser.get('General', 'app_dir')
+            self.SETTINGS_FILE_PATH = self.parser.get('General', 'settings_file_path')
+
+            self.UPDATE_URL = self.parser.get('Updates', 'update_url')
+            self.UPDATE_BACKUP_DIR = self.parser.get('Updates', 'backup_dir')
+            self.UPDATE_ZIP_PATH = self.parser.get('Updates', 'zip_path')
+            self.UPDATE_TMP_DIR = self.parser.get('Updates', 'tmp_dir')
 
             self.VIB_DUR_PATH = self.parser.get('Vibration', 'vibrator_duration_path')
             self.VIB_ACT_PATH = self.parser.get('Vibration', 'vibrator_activate_path')
@@ -83,6 +90,18 @@ class ConfigManager:
             self.BATTERY_REQUEST_PATH = self.parser.get('Battery', 'request_path')
             self.BATTERY_REQUEST_SERVICE = self.parser.get('Battery', 'request_service')
 
+            self.DEFAULT_WAIT = self.parser.getboolean('Sounds', 'default_wait')
+            self.DEFAULT_NOTIFICATION_PATH = self.parser.get('Sounds', 'default_notification_path')
+
+            self.WIFI_DEFAULT_TIMEOUT = self.parser.getint('WiFi', 'default_timeout')
+            self.WIFI_CONNMAN_NAME = self.parser.get('WiFi', 'connman_name')
+            self.WIFI_MANAGER_NAME = self.parser.get('WiFi', 'manager_name')
+            self.WIFI_MANAGER_SERVICE_NAME = self.parser.get('WiFi', 'manager_service_name')
+            self.WIFI_SERVICE_NAME = self.parser.get('WiFi', 'service_name')
+            self.WIFI_SERVICE_PATH = self.parser.get('WiFi', 'service_path')
+            self.WIFI_AGENT_SERVICE_NAME = self.parser.get('WiFi', 'agent_service_name')
+            self.WIFI_AGENT_PATH = self.parser.get('WiFi', 'agent_path')
+
             self.BUTTON_DEV = self.parser.get('Buttons', 'button_dev')
             self.BUTTON_EVENT_FORMAT = self.parser.get('Buttons', 'event_format')
 
@@ -92,6 +111,7 @@ class ConfigManager:
 
             self.WAKE_LOCK_PATH = self.parser.get('OS', 'wake_lock_path')
             self.WAKE_UNLOCK_PATH = self.parser.get('OS', 'wake_unlock_path')
+            self.OS_CERES_GID = self.parser.getint('OS', 'ceres_gid')
             
         except configparser.NoSectionError as e:
             print(f"[CONFIG] Errore: Manca una sezione nel file INI - {e}")

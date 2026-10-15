@@ -1,3 +1,6 @@
+import dbus #type: ignore
+import secrets
+
 from assets.managers.LogsManager import LOGS
 
 from assets.utils.EncryptUtils import encryptUtils
@@ -8,6 +11,7 @@ class OUTGOING_PACKET_TYPES:
 
 class INGOING_PACKET_TYPES:
     NEW_DEVICE_RESPONSE = 1
+    WIFI_INFO = 2
     EMERGENCY_RESPONSE = 11
 
 class PacketsUtilis:
@@ -21,20 +25,28 @@ class PacketsUtilis:
 
         return encryptUtils.encrypt_payload(raw_bytes)
 
-    def get_telemetry_packet(self, bpm: int, button_state: bool, battery_level: int, steps: int = 0):
+    def get_telemetry_packet(self, bpm: int, button_state: bool, battery_level: int, steps: int = 0, fall: bool = False):
+        steps_val = min(max(int(steps), 0), 65535)
+        steps_bytes = steps_val.to_bytes(2, byteorder="little")
+
         raw_bytes = bytes(
             [
                 OUTGOING_PACKET_TYPES.TELEMETRY,
                 1,
                 min(max(int(bpm), 0), 255),
                 min(max(int(battery_level), 0), 100),
-                min(max(int(steps), 0), 255), #PROBLEMA: Con 1 byte possiamo mandare solo al massimo 255 passi...
+                steps_bytes[0],
+                steps_bytes[1],
                 min(max(int(button_state), 0), 1),
-                0,
+                min(max(int(fall), 0), 1),
             ]
         )
 
-        return encryptUtils.encrypt_payload(raw_bytes)
+        LOGS.info(f"[PacketsUtils] Invio pacchetto con payload: TYPE: {OUTGOING_PACKET_TYPES.TELEMETRY} | UID: 1 | BPM: {bpm} | BATTERY: {battery_level} | STEPS: {steps} | BUTTON_STATE: {button_state} | FALL: {fall}")
+
+        encrypted_data = encryptUtils.encrypt_payload(raw_bytes) + secrets.token_bytes(2)
+
+        return dbus.Array([dbus.Byte(b) for b in encrypted_data], signature="y")
 
     def parse_packet_response(self, device_props):
         name = str(device_props.get("Name", ""))

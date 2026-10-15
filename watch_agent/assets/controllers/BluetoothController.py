@@ -100,6 +100,17 @@ class BluetoothController:
         except Exception:
             return False
 
+    def get_mac_address(self) -> str:
+        if not self.adapter_props or not self.init_dbus(): return None
+
+        try:
+            mac_address = str(self.adapter_props.Get(CONFIG.BLE_BLUEZ_ADAPTER_PATH, "Address"))
+            LOGS.info(f"[Bluetooth] MAC Address dell'orologio: {mac_address}")
+            return mac_address
+        except dbus.DBusException as e:
+            LOGS.error(f"[Bluetooth] Impossibile leggere il MAC Address: {e}")
+            return None
+    
     def start_advertising(self, payload) -> bool:
         try:
             self.active_ad = TelemetryAdvertisement(self.bus, payload)
