@@ -11,6 +11,7 @@ from assets.controllers.VibrationController import vibrationController
 from assets.controllers.HeartSensorController import heartSensorController
 from assets.controllers.BatteryController import batteryController
 from assets.controllers.BluetoothController import bluethoothController
+from assets.controllers.AccelerometerSensorController import accelerometerSensorController
 
 from assets.utils.PacketsUtils import packetUtils
 
@@ -84,7 +85,7 @@ class ButtonsController:
 
                 vibrationController.vibrate()
                 
-                bluethoothController.send(packetUtils.get_telemetry_packet(heartSensorController.currentBPM, True, batteryController.battery_level))
+                bluethoothController.send(packetUtils.get_telemetry_packet(heartSensorController.currentBPM, True, batteryController.battery_level, accelerometerSensorController.get_step_counter()))
 
                 bluethoothController.listen_for_packet(response_callback=self.handle_response, timeout_callback=self.handle_timeout)
 

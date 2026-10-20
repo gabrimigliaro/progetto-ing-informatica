@@ -9,6 +9,7 @@ from assets.managers.ConfigManager import CONFIG
 from assets.managers.LogsManager import LOGS
 
 from assets.utils.PacketsUtils import packetUtils
+from assets.utils.EncryptUtils import encryptUtils
 
 ADVERTISEMENT = CONFIG.BLE_ADVERTISEMENT
 ADVERTISING_MANAGER = CONFIG.BLE_ADVERTISEMENT_MANAGER
@@ -100,7 +101,24 @@ class BluetoothController:
         except Exception:
             return False
 
+    def get_mac_address(self) -> bytes:
+        if not self.adapter_props or not self.init_dbus(): return None
+
+        try:
+            mac_address = str(self.adapter_props.Get(CONFIG.BLE_BLUEZ_ADAPTER_PATH, "Address"))
+            LOGS.info(f"[Bluetooth] MAC Address dell'orologio: {mac_address}")
+
+            clean_hex = mac_address.replace(":", "").replace("-", "")
+            mac_bytes = bytes.fromhex(clean_hex)
+
+            return mac_bytes
+        except dbus.DBusException as e:
+            LOGS.error(f"[Bluetooth] Impossibile leggere il MAC Address: {e}")
+            return None
+    
     def start_advertising(self, payload) -> bool:
+        self.stop_advertising()
+
         try:
             self.active_ad = TelemetryAdvertisement(self.bus, payload)
             self.ad_manager.RegisterAdvertisement(
@@ -169,12 +187,20 @@ class BluetoothController:
         if CONFIG.BLE_BLUEZ_DEVICE_PATH in interfaces:
             device_props = interfaces[CONFIG.BLE_BLUEZ_DEVICE_PATH]
             name = str(device_props.get("Name", ""))
-            mfg_data = device_props.get("ManufacturerData", {})
+            service_data = device_props.get("ServiceData", {})
+            target_uuid = CONFIG.BLE_ESP_UUID
 
-            if name == "ESP_REPLY" or 0xFFFF in mfg_data:
+            if CONFIG.BLE_ESP_UUID in service_data:
                 LOGS.success(f"[Bluetooth] Pacchetto RICEVUTO da '{name}' ({object_path})")
 
-                received_info = packetUtils.parse_packet_response(device_props)
+                raw_dbus_array = service_data[target_uuid]
+                
+                raw_payload = bytes([int(b) for b in raw_dbus_array])
+                LOGS.info(f"[PacketsUtils] Payload grezzo estratto ({len(raw_payload)} byte): {raw_payload.hex()}")
+
+                decrypted_payload = encryptUtils.decrypt_payload(raw_payload)
+
+                received_info = packetUtils.parse_packet_response(decrypted_payload, self.get_mac_address())
 
                 self.stop_scanning()
 
@@ -186,16 +212,18 @@ class BluetoothController:
 
     def on_timeout(self):
         LOGS.warning("[Bluetooth] Timeout scansione: nessun pacchetto ricevuto.")
-        self.stop_scanning()
 
-        if self.timeout_callback:
-            self.timeout_callback()
-
+        callback = self.timeout_callback
         self.response_callback = None
         self.timeout_callback = None
 
-        return False
+        self.stop_scanning()
 
+        if callback:
+            callback()
+
+        return False
+    
     def listen_for_packet(self, response_callback=None, timeout_callback = None):
         LOGS.info(f"[Bluetooth] Avvio scansione BLE in ricezione per {self.timeout_time}s...")
 

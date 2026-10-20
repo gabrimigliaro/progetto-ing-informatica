@@ -2,10 +2,12 @@
 
 | Tipo | Evento | Inviante | Descrizione |
 |:----:|--------|----------|-------------|
-| `0`  | Nuovo orologio nella rete   | Orologio | Sezione [`1.1 - Orologio`](./PROTOCOLS.md#11-nuovo-orologio-nella-rete)
-| `1`  | Risposta a pacchetto `0`    | ESP32 | Sezione [`1.1 - ESP32`](./PROTOCOLS.md#11-nuovo-orologio-nella-rete)
-| `10` | Invio periodico dei dati    | Orologio | Sezione [`1.2`](./PROTOCOLS.md#12-invio-periodico-dei-dati)
-| `11` | Risposta emergenza risolta  | ESP32 | Sezione [`1.2.1 / 1.2.2`](./PROTOCOLS.md#12-invio-periodico-dei-dati)
+| `0`  | Nuovo orologio nella rete           | Orologio | Sezione [`1.1 - Orologio`](./PROTOCOLS.md#11-nuovo-orologio-nella-rete)
+| `1`  | Risposta a pacchetto `0`            | ESP32 | Sezione [`1.1 - ESP32`](./PROTOCOLS.md#11-nuovo-orologio-nella-rete)
+| `4`  | Richiesta presenza aggiornamento    | Orologio | Sezione [`1.3.1`](./PROTOCOLS.md#13-aggiornamento-da-remoto)
+| `5`  | Risposta al pacchetto `4`           | ESP32 | Sezione [`1.3.1`](./PROTOCOLS.md#13-aggiornamento-da-remoto)
+| `10` | Invio periodico dei dati            | Orologio | Sezione [`1.2`](./PROTOCOLS.md#12-invio-periodico-dei-dati)
+| `11` | Risposta emergenza risolta          | ESP32 | Sezione [`1.2.1 / 1.2.2`](./PROTOCOLS.md#12-invio-periodico-dei-dati)
 
 | Tipi | Identificativo |
 |:----:|----------------|

@@ -1,3 +1,4 @@
+import os
 import threading
 
 from gi.repository import GLib  # type: ignore
@@ -6,75 +7,47 @@ dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
 from assets.managers.LogsManager import LOGS
 from assets.managers.ConfigManager import CONFIG
+from assets.managers.SettingsManager import SETTINGS
 
-from assets.managers.OSManager import OSMANAGER
-
-from assets.controllers.HeartSensorController import heartSensorController
 from assets.controllers.ButtonsController import buttonsController
 from assets.controllers.BatteryController import batteryController
 from assets.controllers.AccelerometerSensorController import accelerometerSensorController
-from assets.controllers.BluetoothController import bluethoothController
 
-from assets.utils.PacketsUtils import packetUtils
+from assets.managers.UpdateManager import updateManager
+from assets.managers.AppManager import appManager
 
-def stop_and_send():
-    try:
-        LOGS.info("[MAIN] HeartSensor fermato. Invio bluethooth.")
+from assets.controllers.SoundController import soundController
+from assets.utils.EncryptUtils import encryptUtils
 
-        heartSensorController.stop()
-
-        batteryController.get_battery_level()
-
-        bluethoothController.send(packetUtils.get_telemetry_packet(heartSensorController.currentBPM, False, batteryController.battery_level))
-    finally:
-        OSMANAGER.set_wake_lock(False)
-
-    return False
-
-def main_loop():
-    if not heartSensorController.isMesuring: return True
-    if not heartSensorController.session_id: heartSensorController.init_sensor()
-
-    OSMANAGER.set_wake_lock(True)
-
-    threading.Thread(target=LOGS.rotate_and_compress_logs, daemon=True).start()
-
-    heartSensorController.start()
-    GLib.timeout_add_seconds(CONFIG.H_MEASURMENTS_TIME, stop_and_send)
-
-    return True
 
 def main():
     loop = GLib.MainLoop()
 
     if buttonsController.btn_fd is not None:
-        GLib.io_add_watch(buttonsController.btn_fd, GLib.IO_IN, buttonsController.on_button_event)
+        #GLib.io_add_watch(buttonsController.btn_fd, GLib.IO_IN, buttonsController.on_button_event)
+        GLib.io_add_watch(buttonsController.btn_fd, GLib.IO_IN, appManager.send_generic_emergency)
 
-    GLib.timeout_add_seconds(int(CONFIG.H_MEASURMENTS_DELAY), main_loop)
+    GLib.timeout_add_seconds(int(CONFIG.H_MEASURMENTS_DELAY), appManager.main_loop)
 
+    accelerometerSensorController.on_fall_callback = appManager.send_fall_emergency
     threading.Thread(target=accelerometerSensorController.start, daemon=True).start()
 
-    main_loop()
+    SETTINGS.save_wifi_info(encryptUtils.encrypt_string(os.environ.get("DEMO_WIFI_NAME")), encryptUtils.encrypt_string(os.environ.get("DEMO_WIFI_PASSWORD")))
+
+    #threading.Thread(target=updateManager.update, daemon=True).start()
+
+    appManager.main_loop()
     batteryController.get_battery_level()
-    LOGS.success("[MAIN] Loop principale avviato.")
+    LOGS.success(f"[MAIN] Loop principale avviato (V{os.environ.get("VERSION")}).")
+
+    soundController.play_sound(CONFIG.DEFAULT_START_SOUND_PATH)
 
     try:
         loop.run()
     except KeyboardInterrupt:
         LOGS.info("[MAIN] Interruzione da tastiera (Ctrl+C).")
     finally:
-        LOGS.info("[MAIN] Pulizia risorse...")
-
-        if heartSensorController.session_id is not None:
-            heartSensorController.exit()
-
-        if hasattr(buttonsController, "close"):
-            buttonsController.close()
-
-        if accelerometerSensorController.session_id is not None:
-            accelerometerSensorController.exit()
-
-        LOGS.success("[MAIN] Chiusura completata.")
+        appManager.close_app()
 
 if __name__ == "__main__":
     main()
