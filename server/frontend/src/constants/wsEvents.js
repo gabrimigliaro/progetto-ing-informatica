@@ -1,0 +1,9 @@
+export const WS_EVENTS_INGOING = Object.freeze({
+    NEW_DEVICE: 'NEW_DEVICE',
+    DEVICE_UPDATE: 'DEVICE_UPDATE',
+    NEW_EMERGENCY: 'NEW_EMERGENCY'
+});
+
+export const WS_EVENTS_OUTGOING = Object.freeze({
+    DEVICE_CONNECTED: 'DEVICE_CONNECTED',
+});

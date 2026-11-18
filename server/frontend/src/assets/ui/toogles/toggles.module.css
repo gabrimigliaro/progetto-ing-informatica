@@ -1,0 +1,44 @@
+.toggle {
+    display: flex;
+    width: 70px;
+    max-width: 70px !important;
+
+    height: 25px;
+
+    position: relative;
+
+    background-color: var(--bg);
+    border: solid 1px var(--border);
+
+    border-radius: 20px;
+
+    cursor: pointer;
+
+    transition: background-color .2s ease-in-out, border .2s ease-in-out;
+}
+
+.toggle > .circle {
+    position: absolute;
+
+    right: calc(100% - 35px - 2px);
+    top: 2px;
+
+    display: block;
+    width: 35px;
+    height: calc(25px - 2*2px);
+
+    background-color: var(--toggle-unchecked-circle-bg);
+    border-radius: 20px;
+
+    transition: right .2s ease-in-out, background-color .2s ease-in-out;
+}
+
+.toggle.active {
+    background-color: var(--toggle-checked-bg);
+    border: solid 1px transparent
+}
+
+.toggle.active > .circle {
+    right: 2px;
+    background-color: var(--bg);
+}

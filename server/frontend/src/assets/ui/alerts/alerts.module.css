@@ -1,0 +1,60 @@
+.alert {
+    display: flex;
+    width: auto;
+    height: calc(38px - 2px*2);
+
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 20px;
+    padding-right: 20px;
+
+    border-radius: 6px;
+
+    position: absolute;
+    top: 10px;
+    right: 0;
+
+    opacity: 0;
+
+    animation: showAlert 5s ease-in-out forwards;
+}
+
+.alert.green {
+    background-color: var(--green-bg);
+    color: var(--green);
+    border: solid 1px var(--border-green);
+}
+
+.alert.red {
+    background-color: var(--red-bg);
+    color: var(--red);
+    border: solid 1px var(--border-red);
+}
+
+.alert.yellow {
+    background-color: var(--yellow-bg);
+    color: var(--yellow);
+    border: solid 1px var(--border-yellow);
+}
+
+@keyframes showAlert {
+    0% {
+        opacity: 0;
+        right: 0;
+    }
+
+    5% {
+        opacity: 1;
+        right: 10px;
+    }
+
+    95% {
+        opacity: 1;
+        right: 10px;
+    }
+
+    100% {
+        opacity: 0;
+        right: 0;
+    }
+}
