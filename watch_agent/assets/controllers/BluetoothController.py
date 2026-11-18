@@ -4,6 +4,7 @@ import dbus # type: ignore
 import dbus.service # type: ignore
 import dbus.mainloop.glib # type: ignore
 from gi.repository import GLib  # type: ignore
+from functools import partial
 
 from assets.managers.ConfigManager import CONFIG
 from assets.managers.LogsManager import LOGS
@@ -181,7 +182,7 @@ class BluetoothController:
         self.set_power(False)
         LOGS.info("[Bluetooth] Scansione BLE terminata. Radio SPENTA.")
 
-    def packet_received(self, object_path, interfaces):
+    def packet_received(self, packet_type, response_callback, timeout_callback, object_path, interfaces):
         if not self.scan_active: return
 
         if CONFIG.BLE_BLUEZ_DEVICE_PATH in interfaces:
@@ -200,15 +201,18 @@ class BluetoothController:
 
                 decrypted_payload = encryptUtils.decrypt_payload(raw_payload)
 
-                received_info = packetUtils.parse_packet_response(decrypted_payload, self.get_mac_address())
+                received_info = packetUtils.parse_packet_response(decrypted_payload, self.get_mac_address(), raw_payload.hex())
 
-                self.stop_scanning()
+                LOGS.warning(f"received_info = {received_info} | packet_type = {packet_type}")
 
-                if self.response_callback and received_info:
-                    self.response_callback(received_info)
+                if received_info != None and received_info[0] == packet_type:
+                    self.stop_scanning()
 
-                self.response_callback = None
-                self.timeout_callback = None
+                    if response_callback and received_info:
+                        response_callback(received_info[1])
+
+                    self.response_callback = None
+                    self.timeout_callback = None
 
     def on_timeout(self):
         LOGS.warning("[Bluetooth] Timeout scansione: nessun pacchetto ricevuto.")
@@ -224,7 +228,7 @@ class BluetoothController:
 
         return False
     
-    def listen_for_packet(self, response_callback=None, timeout_callback = None):
+    def listen_for_packet(self, packet_type=None, response_callback=None, timeout_callback = None):
         LOGS.info(f"[Bluetooth] Avvio scansione BLE in ricezione per {self.timeout_time}s...")
 
         if not self.is_powered() and not self.set_power(True): return False
@@ -233,7 +237,7 @@ class BluetoothController:
         self.response_callback = response_callback
         self.timeout_callback = timeout_callback
 
-        self.signal_match = self.bus.add_signal_receiver(self.packet_received, dbus_interface=CONFIG.DBUS_OBJECT_MANAGER, signal_name="InterfacesAdded")
+        self.signal_match = self.bus.add_signal_receiver(partial(self.packet_received, packet_type, response_callback, timeout_callback), dbus_interface=CONFIG.DBUS_OBJECT_MANAGER, signal_name="InterfacesAdded")
 
         try:
             adapter_obj = self.bus.get_object(CONFIG.BLE_BLUEZ_GENERAL_PATH, self.adapter_path)

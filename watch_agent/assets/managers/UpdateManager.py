@@ -1,5 +1,6 @@
 import os
 import shutil
+import threading
 import sys
 from urllib.request import Request, urlopen
 import zipfile
@@ -11,7 +12,6 @@ from assets.managers.ConfigManager import CONFIG
 from assets.managers.LogsManager import LOGS
 from assets.managers.SettingsManager import SETTINGS
 
-from assets.managers.AppManager import appManager
 from assets.controllers.WiFiController import wifiController
 
 from assets.lib.threading import ThreadWithReturnValue
@@ -88,13 +88,6 @@ class UpdateManager:
 			LOGS.error(f"[UpdateManager] Errore nella pulizia dei file temporanei: {e}")
 			return False
 
-	def reload_app(self):
-		LOGS.warning("[UpdateManager] Reloading app...")
-
-		appManager.close_app()
-
-		os.execv(sys.executable, [sys.executable] + sys.argv)
-
 	def rollback(self) -> bool:
 		if os.path.exists(self.backup_dir):
 			try:
@@ -125,11 +118,13 @@ class UpdateManager:
 			if not self.download_and_unzip(): return False
 			if not self.update_files(): return False
 			if not self.remove_tmp_file(): return self.rollback()	
-			if not self.reload_app(): return False
+
+			return True
 	
 		except Exception as e:
 			LOGS.error(f"[UpdateManager] Errore durante l'aggiornamento: {e}")
 			self.rollback()
+
 
 
 updateManager = UpdateManager()

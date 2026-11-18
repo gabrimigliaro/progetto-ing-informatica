@@ -42,6 +42,8 @@ class ConfigManager:
             self.UPDATE_BACKUP_DIR = self.parser.get('Updates', 'backup_dir')
             self.UPDATE_ZIP_PATH = self.parser.get('Updates', 'zip_path')
             self.UPDATE_TMP_DIR = self.parser.get('Updates', 'tmp_dir')
+            self.UPDATE_FREQUENCY = self.parser.getfloat('Updates', 'update_frequency')
+            self.UPDATE_MAX_RETRIES = self.parser.getint('Updates', 'max_update_retries')
 
             self.VIB_DUR_PATH = self.parser.get('Vibration', 'vibrator_duration_path')
             self.VIB_ACT_PATH = self.parser.get('Vibration', 'vibrator_activate_path')

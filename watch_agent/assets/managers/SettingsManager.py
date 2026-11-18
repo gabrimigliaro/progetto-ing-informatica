@@ -49,7 +49,7 @@ class SettingsManager:
 
         return True
 
-    def save_wifi_info(self, ssid: str, password: str) -> bool:
+    def save_wifi_SSID(self, ssid: str) -> bool:
         if not Path(self.settings_file).exists():
             LOGS.error(f"[SettingsManager] Errore: File '{self.settings_file}' non trovato.")
             sys.exit(1)
@@ -61,7 +61,6 @@ class SettingsManager:
             data = {}
     
         data["wifi_ssid"] = ssid
-        data["wifi_password"] = password
     
         temp_file = f"{self.settings_file}.tmp"
         with open(temp_file, "w", encoding="utf-8") as f:
@@ -70,36 +69,86 @@ class SettingsManager:
         os.replace(temp_file, self.settings_file)
     
         self.WIFI_SSID = ssid
-        self.WIFI_PASSWORD = password
 
         LOGS.success(f"[SettingsManger] Informazioni WiFi salvate con successo.")
     
         return True
 
-    def save_uid(self, uid: int) -> bool:
-            if not Path(self.settings_file).exists():
-                LOGS.error(f"[SettingsManager] Errore: File '{self.settings_file}' non trovato.")
-                sys.exit(1)
-            
-            try:
-                with open(self.settings_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-            except json.JSONDecodeError:
-                data = {}
+    def save_wifi_PSW(self, password: str) -> bool:
+        if not Path(self.settings_file).exists():
+            LOGS.error(f"[SettingsManager] Errore: File '{self.settings_file}' non trovato.")
+            sys.exit(1)
         
-            data["uid"] = str(uid)
-        
-            temp_file = f"{self.settings_file}.tmp"
-            with open(temp_file, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=4, ensure_ascii=False)
-        
-            os.replace(temp_file, self.settings_file)
-        
-            self.UID = uid
+        try:
+            with open(self.settings_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except json.JSONDecodeError:
+            data = {}
     
-            LOGS.success(f"[SettingsManger] UID salvato con successo.")
-            soundController.play_sound(CONFIG.DEFAULT_START_SOUND_PATH)
+        data["wifi_password"] = password
+    
+        temp_file = f"{self.settings_file}.tmp"
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+    
+        os.replace(temp_file, self.settings_file)
+    
+        self.WIFI_PASSWORD = password
+
+        LOGS.success(f"[SettingsManger] Informazioni WiFi salvate con successo.")
+    
+        return True
+    
+    def delete_wifi_info(self) -> bool:
+        if not Path(self.settings_file).exists():
+            return False
         
-            return True
+        try:
+            with open(self.settings_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except json.JSONDecodeError:
+            data = {}
+    
+        data.pop("wifi_password", None)
+        data.pop("wifi_ssid", None)
+    
+        temp_file = f"{self.settings_file}.tmp"
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+    
+        os.replace(temp_file, self.settings_file)
+    
+        self.WIFI_PASSWORD = None
+        self.WIFI_SSID = None
+
+        LOGS.success(f"[SettingsManger] Informazioni WiFi rimosse con successo.")
+    
+        return True
+
+    def save_uid(self, uid: int) -> bool:
+        if not Path(self.settings_file).exists():
+            LOGS.error(f"[SettingsManager] Errore: File '{self.settings_file}' non trovato.")
+            sys.exit(1)
+        
+        try:
+            with open(self.settings_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except json.JSONDecodeError:
+            data = {}
+    
+        data["uid"] = str(uid)
+    
+        temp_file = f"{self.settings_file}.tmp"
+        with open(temp_file, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+    
+        os.replace(temp_file, self.settings_file)
+    
+        self.UID = uid
+
+        LOGS.success(f"[SettingsManger] UID salvato con successo.")
+        soundController.play_sound(CONFIG.DEFAULT_START_SOUND_PATH)
+    
+        return True
 
 SETTINGS = SettingsManager()
