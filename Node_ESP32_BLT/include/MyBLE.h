@@ -9,17 +9,16 @@
 
 class BleBroadcaster {
 public:
-    static constexpr size_t MAXPAYLOAD = MaxAdvData;
-
     bool begin(const char* deviceName = "Node");
     void end();
 
-    bool send(const uint8_t* data, size_t len);
+    bool send(const void*, size_t);
     void stopSend();
 
 private:
+
     class ScanCb : public NimBLEScanCallbacks {
-    void onResult(const NimBLEAdvertisedDevice* d) override;
+        void onResult(const NimBLEAdvertisedDevice* d) override;
     };
 
     static void taskEntry(void* arg);
@@ -28,3 +27,6 @@ private:
     TaskHandle_t _task = nullptr;
     volatile bool _stop = false;
 };
+
+bool send(const void* body, size_t bodyLen);
+bool startBleWithRetry(int tries);

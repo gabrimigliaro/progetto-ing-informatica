@@ -1,41 +1,74 @@
 #include "MyBLE.h"
 #include <vector>
+#include <Log.h>
 
-static constexpr uint16_t CompanyID  = 0xFFFF;
-static constexpr uint16_t ADVMS      = 200;
-static constexpr uint16_t SCAN_INT_MS = 160;
-static constexpr uint16_t SCAN_WIN_MS = 160;
+static constexpr uint16_t ADVMS      = 50;
+static constexpr uint16_t SCAN_INT_MS = 100;
+static constexpr uint16_t SCAN_WIN_MS = 100;
+
+static SemaphoreHandle_t BLEMutex = NULL;
 
 static uint8_t vet[50][6];
 static int vetCount = 0;
 static int next  = 0;
 
+extern BleBroadcaster ble;
+
 bool SearchDuplicate(const uint8_t* data, size_t len) {
+    if (len <   6) return false;
+
+    const uint8_t* tail = data + len - 6;
+
     for (int i = 0; i < vetCount; i++) {
-        if (memcmp(vet[i], data, 6) == 0) 
-        return true;
+        if (memcmp(vet[i], tail, 6) == 0) {
+            //Log::stampaInfo("BLE DUPLICATE: pacchetto doppio trovato");
+            return true;
+        }
     }
-    memcpy(vet[next], data, 6);
+
+    memcpy(vet[next], tail, 6);
     next = (next + 1) % 50;
     if (vetCount < 50) vetCount++;
+    //Log::stampaInfo("BLE DUPLICATE: pacchetto nuovo trovato");
     return false;
 }
 
- void BleBroadcaster::ScanCb::onResult(const NimBLEAdvertisedDevice* d) {
-    std::string md = d->getManufacturerData();
 
-    if (md.size() != 2 + BLOCK_LEN) return;
+void BleBroadcaster::ScanCb::onResult(const NimBLEAdvertisedDevice* d) {
+    std::string serviceData;
 
-    if ((uint8_t)md[0] != (CompanyID & 0xFF) || (uint8_t)md[1] != (CompanyID >> 8)) return;
+    if (d->haveServiceData()) {
+        serviceData = d->getServiceData();
+    } else return;
 
-    if (d->getName() != AcceptName) return;
+    bool isOurDevice = false;
+    if (d->getServiceDataUUID().equals(BLEUUID("FFE0"))) {
+        isOurDevice = true;
 
-    if (SearchDuplicate((const uint8_t*)md.data() + 2, md.size() - 2) == 1) return;
+        if (SearchDuplicate((const uint8_t*)serviceData.data() + 2, serviceData.size() - 2) == 1) return;
+        Log::stampaInfo("BLE RX: ricevuto pacchetto ");
+    } else if (d->haveName() && d->getName() == "WA") {
+        isOurDevice = true;
 
-    Decrypt((const uint8_t*)md.data() + 2, md.size() - 2, d->getRSSI());
+        if (SearchDuplicate((const uint8_t*)serviceData.data() + 2, serviceData.size() - 2) == 1) return;
+        Log::stampaInfo("BLE RX: ricevuto pacchetto ");
+    }
+
+    if (isOurDevice) {
+
+        const uint8_t* encryptedBytes = (const uint8_t*)serviceData.data();
+        uint8_t decrypted[16] = {0};
+
+        if (Decrypt(encryptedBytes, decrypted)) {
+            if(ParsePacket(decrypted, (int) d->getRSSI()) != 1) {
+                Log::stampaWarning("PARSING: errore");
+            }
+        }
+    }
 }
 
 bool BleBroadcaster::begin(const char* deviceName) {
+    if (!BLEMutex) BLEMutex = xSemaphoreCreateMutex();
     if (_task) return true;
 
     if (!NimBLEDevice::init(deviceName)) {
@@ -69,8 +102,6 @@ bool BleBroadcaster::begin(const char* deviceName) {
     return true;
 }
 
-
-
 void BleBroadcaster::end() {
     if (!_task) return;
     _stop = true;
@@ -80,23 +111,29 @@ void BleBroadcaster::end() {
     NimBLEDevice::deinit(true);
 }
 
-bool BleBroadcaster::send(const uint8_t* data, size_t len) {
-    if (len > MAXPAYLOAD) return false;
+bool BleBroadcaster::send(const void* body, size_t bodyLen) {
+    if (bodyLen + 1 > BLOCK_LEN) return false;
 
-    std::vector<uint8_t> md;
-    md.reserve(2 + len);
-    md.push_back(CompanyID & 0xFF);
-    md.push_back(CompanyID >> 8);
-    md.insert(md.end(), data, data + len);
+    uint8_t plain[BLOCK_LEN];
+    memcpy(plain, body, bodyLen);
 
+    uint8_t cipher[BLOCK_LEN];
+    if (!Encrypt(plain, bodyLen, cipher)) return false;
+
+    xSemaphoreTake(BLEMutex, portMAX_DELAY);
     NimBLEAdvertisementData ad;
-    ad.setName(AcceptName);
-    ad.setManufacturerData(md);
+    ad.setServiceData(NimBLEUUID(ReplyServiceUUID), std::vector<uint8_t>(cipher, cipher + BLOCK_LEN));
+    
+    ad.setName(NodeName, true); 
 
     NimBLEAdvertising* adv = NimBLEDevice::getAdvertising();
     adv->stop();
     adv->setAdvertisementData(ad);
-    return adv->start(0);
+    bool ok = adv->start(5000);
+    if (ok) vTaskDelay(pdMS_TO_TICKS(1500));
+    xSemaphoreGive(BLEMutex);
+    if(!ok) Log::stampaAllarme("BLE TX: errore");
+    return ok;
 }
 
 void BleBroadcaster::stopSend() {
@@ -112,4 +149,13 @@ void BleBroadcaster::taskEntry(void* arg) {
     }
     self->_task = nullptr;
     vTaskDelete(nullptr);
+}
+
+bool startBleWithRetry(int tries) {
+    for (int i = 1; i <= tries; i++) {
+        if (ble.begin("Node")) return true;
+        Log::stampaAllarme("BLE INIT: tentativo %d/%d fallito", i, tries);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+    return false;
 }

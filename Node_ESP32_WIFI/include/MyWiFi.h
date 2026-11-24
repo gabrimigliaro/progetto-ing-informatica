@@ -10,3 +10,5 @@
 void WiFiInit();
 void WifiUpdate();
 void WifiStart();
+void WifiDisconnect();
+void WiFiCredentials(const char* ssid, const char* password, const char* ip, const char* gw, const char* sn, const char* sci);
